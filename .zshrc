@@ -1,11 +1,17 @@
 # Language and Charset
-#export LANG=ja_JP.UTF-8
-export LC_ALL=C
+export LC_ALL=ja_JP.UTF-8
 
 #Interprreting Color
 export LSCOLORS=gxfxcxdxbxegedabagacad
 export LS_COLORS='di=36:ln=35:so=32:pi=33:ex=31:bd=46;34:cd=43;34:su=41;30:sg=46;30:tw=42;30:ow=43;30'
-alias ls="ls --color"
+case ${OSTYPE} in
+    darwin*)
+        alias ls="ls -G"
+        ;;
+    linux*)
+        alias ls="ls --color"
+        ;;
+esac
 
 # Lines configured by zsh-newuser-install
 HISTFILE=$HOME/.zsh-history
@@ -109,11 +115,8 @@ RPROMPT="%{${fg[blue]}%}[%~]%{${reset_color}%}"
 
 #################################################################################
 
-# pyenv settings
-if [[ -s $HOME/.pyenv ]]; then
-    export PATH="$HOME/.pyenv/bin:$PATH"
-    eval "$(pyenv init -)"
-fi
+# terminal
+export TERM=xterm-256color
 
 # command history search settings
 autoload history-search-end
@@ -122,9 +125,27 @@ zle -N history-beginning-search-forward-end history-search-end
 bindkey "^P" history-beginning-search-backward-end
 bindkey "^N" history-beginning-search-forward-end
 
+# pyenv settings
+if [[ -s $HOME/.pyenv ]]; then
+    export PATH="$HOME/.pyenv/bin:$PATH"
+    eval "$(pyenv init -)"
+fi
+
+# sqlplus settings
+if [[ -s /usr/local/sqlplus/instantclient_11_2 ]]; then
+    export ORACLE_HOME=/usr/local/sqlplus/instantclient_11_2
+    export PATH=$ORACLE_HOME:$PATH
+    export DYLD_LIBRARY_PATH=$ORACLE_HOME
+#    export NLS_LANG=American_America.AL32UTF8
+    export NLS_LANG=Japanese_Japan.AL32UTF8
+fi
+
+# AWS CLI settings
+if [[ -s /usr/local/aws/bin/aws_zsh_completer.sh ]]; then
+    export PATH="/usr/local/aws/bin:$PATH"
+    source /usr/local/aws/bin/aws_zsh_completer.sh
+fi
+
 # shortened emacs command
 alias e="emacs"
-
-# terminal
-export TERM=xterm-256color
 

@@ -3,8 +3,7 @@
 (require 'cl)
 (setq evil-want-C-u-scroll t)
 
-(setq user-full-name "nao")
-(setq user-mail-address "hakuro16@gmail.com")
+(setq user-full-name "Naohisa Takahashi")
 
 ;; user emacs directory setting
 (unless (boundp 'user-emacs-directory)
@@ -57,6 +56,10 @@
         (add-to-list 'load-path default-directory)
         (if (fboundp 'normal-top-level-add-subdirs-to-load-path)
           (normal-top-level-add-subdirs-to-load-path))))))
+(unless (file-directory-p "~/.emacs.d/el-get")
+  (make-directory "~/.emacs.d/el-get"))
+(unless (file-directory-p "~/.emacs.d/init.d")
+  (make-directory "~/.emacs.d/init.d"))
 (add-to-load-path "el-get" "init.d")
 
 ;; el-get
@@ -67,20 +70,59 @@
       (let (el-get-master-branch)
         (goto-char (point-max))
         (eval-print-last-sexp))))
-(add-to-list 'el-get-recipe-path (concat user-emacs-directory "/recipes"))
+
 (setq el-get-user-package-directory "~/.emacs.d/init.d/")
+
+;; el-get packages
 (defvar my:packages
   '(el-get
-     evil evil-surround evil-numbers evil-leader evil-nerd-commenter
-     helm
-     clojure-mode clojure-cheatsheet paredit cider ac-nrepl
-     rainbow-delimiters autopair
-     rainbow-mode
-     auto-complete
-     wanderlust
-     ))
+    evil evil-surround evil-numbers evil-leader evil-nerd-commenter
+    helm
+    clojure-mode paredit cider ac-nrepl clj-refactor
+    rainbow-delimiters
+    auto-complete))
+
 (defvar my:opt-packages '(powerline))
 (if window-system
   (el-get 'sync my:packages my:opt-packages)
   (el-get 'sync my:packages))
+
+;; evil
+(evil-mode 1)
+(define-key evil-insert-state-map (kbd "C-a") 'move-beginning-of-line)
+(define-key evil-insert-state-map (kbd "C-e") 'move-end-of-line)
+(define-key evil-insert-state-map (kbd "C-h") 'delete-backward-char)
+
+;; evil-numbers
+(define-key evil-normal-state-map (kbd "+") 'evil-numbers/inc-at-pt)
+(define-key evil-normal-state-map (kbd "-") 'evil-numbers/dec-at-pt)
+
+;; evil-leader
+(global-evil-leader-mode)
+(evil-leader/set-leader ",")
+(evil-leader/set-key
+  "f" 'helm-find-file
+  "r" 'helm-recentf
+  "b" 'helm-buffers-list
+  "x" 'helm-M-x
+  "c" 'evilnc-comment-or-uncomment-lines
+  "j" 'cider-jack-in
+  "s" 'eshell
+  "e" 'dired
+  )
+
+;; cider
+(add-hook 'cider-mode-hook 'cider-turn-on-eldoc-mode)
+
+;; ac-nrepl
+(add-hook 'cider-repl-mode-hook 'ac-nrepl-setup)
+(add-hook 'cider-mode-hook 'ac-nrepl-setup)
+(eval-after-load "auto-complete"
+  '(add-to-list 'ac-modes 'cider-repl-mode))
+
+;; rainbow-delimiters
+(add-hook 'lisp-interaction-mode-hook 'rainbow-delimiters-mode)
+(add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode)
+(add-hook 'clojure-mode-hook 'rainbow-delimiters-mode)
+(add-hook 'cider-mode-hook 'rainbow-delimiters-mode)
 
