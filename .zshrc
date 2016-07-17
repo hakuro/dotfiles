@@ -113,6 +113,11 @@ PROMPT2="%{${fg[green]}%}%_> %{${reset_color}%}"
 SPROMPT="%{${fg[red]}%}correct: %R -> %r [nyae]? %{${reset_color}%}"
 RPROMPT="%{${fg[blue]}%}[%~]%{${reset_color}%}"
 
+# appendix rc file
+if [[ -s $HOME/.zshrc.append ]]; then
+    source $HOME/.zshrc.append
+fi
+
 #################################################################################
 
 # terminal
@@ -125,10 +130,22 @@ zle -N history-beginning-search-forward-end history-search-end
 bindkey "^P" history-beginning-search-backward-end
 bindkey "^N" history-beginning-search-forward-end
 
+# AWS CLI settings
+if [[ -s /usr/local/aws/bin/aws_zsh_completer.sh ]]; then
+    export PATH="/usr/local/aws/bin:$PATH"
+    source /usr/local/aws/bin/aws_zsh_completer.sh
+fi
+
 # pyenv settings
 if [[ -s $HOME/.pyenv ]]; then
     export PATH="$HOME/.pyenv/bin:$PATH"
     eval "$(pyenv init -)"
+fi
+
+# rbenv settings
+if [[ -s $HOME/.rbenv ]]; then
+    export PATH="$HOME/.rbenv/bin:$PATH"
+    eval "$(rbenv init -)"
 fi
 
 # sqlplus settings
@@ -138,12 +155,6 @@ if [[ -s /usr/local/sqlplus/instantclient_11_2 ]]; then
     export DYLD_LIBRARY_PATH=$ORACLE_HOME
 #    export NLS_LANG=American_America.AL32UTF8
     export NLS_LANG=Japanese_Japan.AL32UTF8
-fi
-
-# AWS CLI settings
-if [[ -s /usr/local/aws/bin/aws_zsh_completer.sh ]]; then
-    export PATH="/usr/local/aws/bin:$PATH"
-    source /usr/local/aws/bin/aws_zsh_completer.sh
 fi
 
 # shortened emacs command
