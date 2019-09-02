@@ -1,5 +1,8 @@
 ;; -*- MODE: emacs-lisp; coding: utf-8-emacs-unix; indent-tabs-mode: nil -*-
 
+
+(package-initialize)
+
 (require 'cl)
 (setq evil-want-C-u-scroll t)
 
@@ -65,11 +68,11 @@
 ;; el-get
 (unless (require 'el-get nil 'noerror)
     (with-current-buffer
-      (url-retrieve-synchronously
-        "https://raw.github.com/dimitri/el-get/master/el-get-install.el")
-      (let (el-get-master-branch)
-        (goto-char (point-max))
-        (eval-print-last-sexp))))
+     (url-retrieve
+      "https://raw.githubusercontent.com/dimitri/el-get/master/el-get-install.el"
+      (lambda (s)
+       (goto-char (point-max))
+       (eval-print-last-sexp)))))
 
 (setq el-get-user-package-directory "~/.emacs.d/init.d/")
 
@@ -77,15 +80,17 @@
 (defvar my:packages
   '(el-get
     evil evil-surround evil-numbers evil-leader evil-nerd-commenter
-    helm
-    clojure-mode paredit cider ac-nrepl clj-refactor
-    rainbow-delimiters
-    auto-complete))
+    helm helm-cider
+    clojure-mode paredit cider rainbow-delimiters company-mode))
 
 (defvar my:opt-packages '(powerline))
 (if window-system
   (el-get 'sync my:packages my:opt-packages)
   (el-get 'sync my:packages))
+
+;; backspace
+(define-key key-translation-map [?\C-h] [?\C-?])
+(global-set-key (kbd "C-?") 'help-for-help)
 
 ;; evil
 (evil-mode 1)
@@ -101,24 +106,26 @@
 (global-evil-leader-mode)
 (evil-leader/set-leader ",")
 (evil-leader/set-key
-  "f" 'helm-find-file
-  "r" 'helm-recentf
+  "f" 'helm-find-files
   "b" 'helm-buffers-list
   "x" 'helm-M-x
   "c" 'evilnc-comment-or-uncomment-lines
   "j" 'cider-jack-in
+  "v" 'cider-eval-last-sexp
+  "d" 'helm-cider-cheatsheet
   "s" 'eshell
   "e" 'dired
   )
 
-;; cider
-(add-hook 'cider-mode-hook 'cider-turn-on-eldoc-mode)
+;; company-mode
+(global-company-mode)
 
-;; ac-nrepl
-(add-hook 'cider-repl-mode-hook 'ac-nrepl-setup)
-(add-hook 'cider-mode-hook 'ac-nrepl-setup)
-(eval-after-load "auto-complete"
-  '(add-to-list 'ac-modes 'cider-repl-mode))
+;; cider
+(helm-cider-mode 1)
+(add-hook 'cider-mode-hook 'company-mode)
+(add-hook 'cider-mode-hook 'eldoc-mode)
+(add-hook 'cider-repl-mode-hook 'company-mode)
+(add-hook 'cider-repl-mode-hook 'eldoc-mode)
 
 ;; rainbow-delimiters
 (add-hook 'lisp-interaction-mode-hook 'rainbow-delimiters-mode)
@@ -126,3 +133,6 @@
 (add-hook 'clojure-mode-hook 'rainbow-delimiters-mode)
 (add-hook 'cider-mode-hook 'rainbow-delimiters-mode)
 
+(custom-set-variables
+ '(package-selected-packages (quote (queue))))
+(custom-set-faces)
